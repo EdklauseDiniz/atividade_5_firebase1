@@ -1,12 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View, TextInput, SafeAreaView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-// Import the functions you need from the SDKs you need
+import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -20,6 +18,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 const Stack = createNativeStackNavigator();
 
@@ -27,22 +26,65 @@ const Stack = createNativeStackNavigator();
 //NOTA1: Lembrar de botar a requisição de Login e Senha.
 
 function LoginScreen({ navigation }){
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      Alert.alert('Sucesso', 'Login realizado com sucesso!');
+      navigation.navigate('Coin');
+    } catch (error) {
+      Alert.alert('Erro', error.message);
+    }
+  };
+
   return(
-    <SafeAreaView>
-      <Text>Login</Text>
-      <TextInput></TextInput>
-      <Text>Senha</Text>
-      <TextInput></TextInput>
-      <TouchableOpacity onPress={() => navigation.navigate("Coin")}>
-        <Text>Entrar</Text>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.label}>Login</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
+      <Text style={styles.label}>Senha</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Senha"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
+      <StatusBar style="auto" />
     </SafeAreaView>
   )
 }
 
 function CoinScreen({ navigation, route }){
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      Alert.alert('Sucesso', 'Logout realizado com sucesso!');
+      navigation.navigate('Login');
+    } catch (error) {
+      Alert.alert('Erro', error.message);
+    }
+  };
+
   return(
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Tela de Moedas</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogout}>
+        <Text style={styles.buttonText}>Sair</Text>
+      </TouchableOpacity>
+      <StatusBar style="auto" />
     </SafeAreaView>
   )
 }
@@ -58,7 +100,14 @@ function App() {
         <Stack.Screen
           name="Coin"
           component={CoinScreen}
-          options={{headerTitleAlign: 'center'}}
+          options={{
+            headerTitle: () => (
+              <View>
+                <Text>Cotação de Moedas</Text>
+                <Text>{data},{hora}</Text>
+              </View>
+            ),
+            headerTitleAlign: 'center'}}
         />
       </Stack.Navigator>
     </NavigationContainer>
