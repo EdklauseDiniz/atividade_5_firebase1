@@ -114,12 +114,8 @@ function TelaPrincipal() {
   const [carregando, setCarregando] = useState(false);
 
   const getBandeiraUrl = (codigo) => {
-    const bandeiras = {
-      'USD': 'https://flagcdn.com/w40/us.png',
-      'EUR': 'https://flagcdn.com/w40/eu.png',
-      'BRL': 'https://flagcdn.com/w40/br.png',
-    };
-    return bandeiras[codigo] || 'https://flagcdn.com/w40/un.png';
+    const bandeira = codigo.substring(0, 2).toLowerCase();
+    return 'https://flagcdn.com/w40/'+bandeira+'.png' || 'https://flagcdn.com/w40/un.png';
   };
 
   const buscarCotacoes = async () => {
@@ -131,12 +127,12 @@ function TelaPrincipal() {
       setAtualizadoEm(`${agora.toLocaleDateString('pt-BR')} ${agora.toLocaleTimeString('pt-BR')}`);
       const moedasPermitidas = ['USD', 'EUR', 'BRL'];
       const listaMoedas = Object.keys(dados)
-        .filter(key => moedasPermitidas.includes(key))
+       
         .map(key => ({
           codigo: key,
           nome: dados[key].name,
           valor: parseFloat(dados[key].bid).toFixed(2),
-          bandeiraUrl: getBandeiraUrl(key)
+          bandeiraUrl: getBandeiraUrl(dados[key].code)
         }));
       setCotacoes(listaMoedas);
     } catch {
