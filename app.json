@@ -1,7 +1,13 @@
 {
   "expo": {
     "name": "myproject",
-    "slug": "myproject",
-    "version": "1.0.0"
+    "slug": "coinatt-38zv09",
+    "version": "1.0.0",
+    "extra": {
+      "eas": {
+        "projectId": "f1aeff6f-b629-4bb5-b8f0-07cfbaa2ecf0"
+      }
+    },
+    "owner": "edklauses-organization"
   }
 }
